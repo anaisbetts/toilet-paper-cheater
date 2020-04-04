@@ -1,0 +1,102 @@
+import { remote } from 'electron';
+
+const notifySlack: Function = remote.getGlobal('notifySlack');
+const scanStatus: Function = remote.getGlobal('scanStatus');
+
+function navigateBack() {
+  remote.getCurrentWindow().webContents.goBack();
+}
+
+function canStartScan() {
+  const el = document.querySelector('span[data-action~="cart-go-checkout"] a') as HTMLAnchorElement;
+  if (!el) return null;
+  if (el.getAttribute('aria-disabled') !== "false") return null;
+
+  return el;
+}
+
+function isOnDeliveryWindowPage() {
+  return document.querySelector('#delivery-slot-form') as HTMLElement;
+}
+
+function randomNumber(min: number, max: number) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}  
+
+const re = /No delivery/i;
+
+function isDeliverySlotAvailable() {
+  const el = isOnDeliveryWindowPage();
+  if (!el) return false;
+
+  return !el.innerText.match(re);
+}
+
+document.addEventListener('DOMContentLoaded', (_e) => {
+  const isScanning = scanStatus();
+
+  if (isOnDeliveryWindowPage()) {
+    // NB: Delivery window info gets AJAXed in
+    setTimeout(() => {
+      if (isDeliverySlotAvailable()) {
+        notifySlack('*There is a slot!!!* Go Go Go!');
+      }
+      
+      setTimeout(() => navigateBack(), randomNumber(2,4) * 1000);
+    }, 2000);
+  }
+
+  let scanToken: NodeJS.Timeout;
+  if (isScanning) {
+    scanToken = setTimeout(() => {
+      const el = canStartScan();
+      if (el) el.click();
+    }, randomNumber(3, 10/*60, 5*60*/) * 1000);
+  }
+
+  const button = document.createElement('button');
+  button.setAttribute('class', 'a-button a-button-normal');
+  button.style.minWidth = '128px';
+  button.style.minHeight = '24px';
+  button.style.marginTop = '8px';
+
+  button.innerText = isScanning ? 'Stop scanning': 'Scan for Delivery Windows';
+
+  if (isScanning) {
+    button.addEventListener('click', (_e) => {
+      scanStatus(false);
+      notifySlack('Cancelling scan!');
+
+      clearTimeout(scanToken);
+      window.location.href = window.location.href;
+    });
+  } else {
+    button.addEventListener('click', (_e) => {
+      if (!canStartScan()) {
+        window.alert("Can't start the scan! Make sure you're on the checkout page with a few items in the cart")
+        return;
+      }
+
+      notifySlack('Starting scan!');
+      scanStatus(true);
+
+      window.location.href = window.location.href;
+    });
+  }
+
+  const flash = document.createElement('h1');
+  flash.innerText = 'Navigate to the checkout page!';
+  flash.style.zIndex = '100000';
+  flash.style.color = 'black';
+  flash.style.position = 'absolute';
+
+  const buttonHost = document.querySelector('.cart-checkout-box div');
+  if (buttonHost) {
+    buttonHost.appendChild(button);
+  } else {
+    setTimeout(() => document.body.prepend(flash), 2000);
+  }
+});
