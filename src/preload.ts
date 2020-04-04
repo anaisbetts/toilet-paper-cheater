@@ -39,6 +39,7 @@ function isDeliverySlotAvailable() {
 
 document.addEventListener('DOMContentLoaded', (_e) => {
   const isScanning = scanStatus();
+  const scanCount = getScanCount();
 
   if (isOnDeliveryWindowPage()) {
     // NB: Delivery window info gets AJAXed in
@@ -54,10 +55,14 @@ document.addEventListener('DOMContentLoaded', (_e) => {
 
   let scanToken: NodeJS.Timeout;
   if (isScanning) {
+    const delaySeconds = scanCount > 0 ? 
+      randomNumber(/*3, 10*/60, 5*60) :
+      1;
+    
     scanToken = setTimeout(() => {
       const el = canStartScan();
       if (el) el.click();
-    }, randomNumber(/*3, 10*/60, 5*60) * 1000);
+    }, delaySeconds * 1000);
   }
 
   const button = document.createElement('button');
@@ -66,7 +71,7 @@ document.addEventListener('DOMContentLoaded', (_e) => {
   button.style.minHeight = '24px';
   button.style.marginTop = '8px';
 
-  button.innerText = isScanning ? `Stop scanning (${getScanCount()} scans performed)`: 'Scan for Delivery Windows';
+  button.innerText = isScanning ? `Stop scanning (${scanCount} scans performed)`: 'Scan for Delivery Windows';
 
   if (isScanning) {
     button.addEventListener('click', (_e) => {
