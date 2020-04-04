@@ -2,6 +2,8 @@ import { remote } from 'electron';
 
 const notifySlack: Function = remote.getGlobal('notifySlack');
 const scanStatus: Function = remote.getGlobal('scanStatus');
+const incrementScanCount: Function = remote.getGlobal('incrementScanCount');
+const getScanCount: Function = remote.getGlobal('getScanCount');
 
 function navigateBack() {
   remote.getCurrentWindow().webContents.goBack();
@@ -45,6 +47,7 @@ document.addEventListener('DOMContentLoaded', (_e) => {
         notifySlack('*There is a slot!!!* Go Go Go!');
       }
       
+      incrementScanCount();
       setTimeout(() => navigateBack(), randomNumber(2,4) * 1000);
     }, 2000);
   }
@@ -63,12 +66,13 @@ document.addEventListener('DOMContentLoaded', (_e) => {
   button.style.minHeight = '24px';
   button.style.marginTop = '8px';
 
-  button.innerText = isScanning ? 'Stop scanning': 'Scan for Delivery Windows';
+  button.innerText = isScanning ? `Stop scanning (${getScanCount()} scans performed)`: 'Scan for Delivery Windows';
 
   if (isScanning) {
     button.addEventListener('click', (_e) => {
       scanStatus(false);
       notifySlack('Cancelling scan!');
+      incrementScanCount(0);
 
       clearTimeout(scanToken);
       window.location.href = window.location.href;

@@ -28,9 +28,26 @@ function scanStatus(newValue?: boolean) {
   return isScanning;
 }
 
+let scanCount = 0;
+function incrementScanCount(resetTo?: number) {
+  scanCount++;
+
+  if (resetTo) {
+    scanCount = resetTo;
+  }
+
+  return scanCount;
+}
+
+function getScanCount() {
+  return scanCount;
+}
+
 Object.assign(global, {
   notifySlack,
-  scanStatus
+  scanStatus,
+  incrementScanCount,
+  getScanCount,
 });
 
 const createWindow = async () => {
