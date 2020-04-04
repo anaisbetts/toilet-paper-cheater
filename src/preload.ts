@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', (_e) => {
   if (isScanning) {
     button.addEventListener('click', (_e) => {
       scanStatus(false);
-      notifySlack('Cancelling scan!');
+      notifySlack('Cancelling scan...');
       incrementScanCount(0);
 
       clearTimeout(scanToken);
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', (_e) => {
         return;
       }
 
-      notifySlack('Starting scan!');
+      notifySlack('Starting scan...');
       scanStatus(true);
 
       window.location.href = window.location.href;

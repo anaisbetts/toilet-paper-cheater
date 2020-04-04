@@ -15,7 +15,9 @@ if (isDevMode) {
 }
 
 function notifySlack(text: string) {
-  axios.post(webHookBase, { text });
+  axios.post(webHookBase, { text }).catch((e) => {
+    console.error(`failed to post to Slack! ${e.message}`);
+  })
 }
 
 let isScanning = false;
