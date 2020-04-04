@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', (_e) => {
     scanToken = setTimeout(() => {
       const el = canStartScan();
       if (el) el.click();
-    }, randomNumber(3, 10/*60, 5*60*/) * 1000);
+    }, randomNumber(/*3, 10*/60, 5*60) * 1000);
   }
 
   const button = document.createElement('button');
