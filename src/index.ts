@@ -17,6 +17,7 @@ if (isDevMode) {
 function notifySlack(text: string) {
   axios.post(webHookBase, { text }).catch((e) => {
     console.error(`failed to post to Slack! ${e.message}`);
+    console.error(e);
   })
 }
 
