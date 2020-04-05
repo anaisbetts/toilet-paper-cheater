@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', (_e) => {
     // NB: Delivery window info gets AJAXed in
     setTimeout(() => {
       if (isDeliverySlotAvailable()) {
-        notifySlack('*There is a slot!!!* Go Go Go!');
+        notifySlack('*There is a slot!!!* Go Go Go! https://primenow.amazon.com/cart?ref_=pn_gw_nav_cart');
       }
       
       incrementScanCount();
