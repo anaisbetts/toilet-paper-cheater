@@ -1,4 +1,5 @@
 import { remote } from 'electron';
+import { minPollIntervalMinutes, maxPollIntervalMinutes } from './constants';
 
 const notifySlack: Function = remote.getGlobal('notifySlack');
 const scanStatus: Function = remote.getGlobal('scanStatus');
@@ -56,7 +57,7 @@ document.addEventListener('DOMContentLoaded', (_e) => {
   let scanToken: NodeJS.Timeout;
   if (isScanning) {
     const delaySeconds = scanCount > 0 ? 
-      randomNumber(/*3, 10*/60, 5*60) :
+      randomNumber(/*3, 10*/minPollIntervalMinutes*60, maxPollIntervalMinutes*60) :
       1;
     
     scanToken = setTimeout(() => {
